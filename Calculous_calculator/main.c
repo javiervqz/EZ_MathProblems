@@ -2,173 +2,172 @@
 #include <stdlib.h>
 #include <math.h>
 
+
+
+void printMenu(void){
+   printf("\n1.-Root by Newton method\n");
+   printf("2.-Root by bisection method \n");
+   printf("3.-Simpson 1/3 integration\n");
+   printf("4.-Higher order derivative\n");
+   printf("5.-Salir\n");
+}
+
+int factorial(int n){
+   if(n >=1){
+   return n*factorial(n-1);
+   }
+   else return 1;
+}
+
+double combinations(int elements,int combinations){
+   return factorial(elements)/(factorial(combinations)*factorial(elements-combinations));
+
+}
+void printPoly(int PolyOrder, double *Coeficients){
+   int i, power;
+
+   printf("Tu polinomio es:\n");
+   for (i=0; i<= PolyOrder; i++){
+      power=i;
+      printf("%.2lfx^%d ", Coeficients[i], power++);
+      if ( Coeficients[i+1] > 0 && i < PolyOrder)  printf(" + ");
+ 
+   }
+}
+
+double functionEvaluate(int PolyOrder, double *Coeficients,double xInitial){
+      double polySumY = 0.0;
+      int i;
+            for (i=0;i<= PolyOrder;i++){
+               polySumY +=  Coeficients[i]*pow(xInitial,i);
+            }
+      return polySumY;
+
+}
+double Derivative(int PolyOrder, double *Coeficients, double error, double xInitial, int DerivativeOrder){
+   int i;
+   double Derivative=0.0, xEvaluate;
+   for (i=0; i<=DerivativeOrder; i++){
+         xEvaluate = xInitial + i * error;
+         Derivative += (1/pow(error,DerivativeOrder))*pow(-1,i+DerivativeOrder)*combinations(DerivativeOrder,i)*functionEvaluate(PolyOrder, Coeficients, xEvaluate);
+   }
+      return Derivative;
+}
+
+
+
+double NewtonRoot(double error, double xInitial, double *Coeficients, int PolyOrder){
+   double polySumY, polyDerivative, nextX;
+   int i;
+         do{ 
+            polySumY = functionEvaluate(PolyOrder,Coeficients,xInitial);
+            polyDerivative = Derivative(PolyOrder,Coeficients,error,xInitial,1);
+
+            printf("f(x):%lf\n df(x): %lf\n",polySumY,polyDerivative);
+
+            nextX = xInitial - (polySumY/polyDerivative);
+            xInitial = nextX;
+            }
+         while(fabs(polySumY)>=error);
+   return xInitial;
+}
+
+
 int main(int argc, char *argv[])
 {
-   double a[10];
-   int i,j, N,power,o,qw,wq,Inx;//polynomial
+   double a[100];
+   int i,j, N,option,qw,wq,Inx;//polynomial
    
-   double x, polyD=0.0,e,gx=0.0,polySum=0.0; //1st menu
+   double xInitial, xRoot, polyDerivative,error,nextX,polySumY; //1st menu
    
-    double q,b,c,ty,polySum1, polySum2; //2nd menu
+   double q,b,c,ty,polySum1, polySum2; //2nd menu
     
-    double  h, polySum3,it=0.0; //3rd menu
-
-
+   double  h, polySum3,it=0.0; //3rd menu
+   
 
    printf("Ingresa el orden del polinomio\n");
    scanf("%d", &N);
-   
 
    printf("Ingresa %d coeficientes\n",N+1);
    for (i=0;i <= N;i++)
    {
-     scanf("%lf",&a[i]);
+     printf("For x^%d: ", i); 
+     scanf("\n%lf",&a[i]);
    }
-  
    
-   power=N;
-   
-  
-   printf("Tu polinomio es:\n");
-   for (i=0;i<= N;i++)
-   {j=i;
-      if (power < 0)
-      {
-	 break;
-      }
-
-         if (a[i] > 0)
-	   printf(" + ");
-      
-	  
-      printf("%.2lfx^%d ",a[i],j++);
  
-   }
-   
-   
-   
-   do{printf("\n1.-Raiz de Newton\n");
-   printf("2.-Raiz por biseccion\n");
-   printf("3.-Integrar por 1/3 de Simpson\n");
-   printf("4.-1er Derivada en x\n");
-   printf("5.-2da Derivada en x\n");
-   printf("6.-3er Derivada en x\n");
-   printf("7.-4ta Derivada en x\n");
-   printf("8.-Salir\n");
-   scanf("%d",&o);
-         switch(o){
-                   case 1: 
-                        printf("Ingresa el valor de x\n");
-                         scanf("%lf", &x);
-   
-                          printf("Ingresa el valor del error\n");
-                           scanf("%lf",&e);
+
+
+   do{
+      printPoly(N,  a);
+      printMenu();
+      scanf("%d",&option);
+
+      switch(option){
+               case 1: 
+                     printf("Ingresa el valor de x\n");
+                     scanf("%lf", &xInitial);
+                     printf("Ingresa el valor del error\n");
+                     scanf("%lf",&error);
+                     
+
+                     xRoot = NewtonRoot(error,xInitial,a,N);
+
+                     printf("Tu valor de x es: %lf\n",xRoot);
+
+                     break;
+                           
+                           
+               case 2:
+                     printf("Dame el intervalo [a,b]\n");
+                     printf("Dame a:\n");
+                     scanf("%lf",&q);
+                     printf("Dame b:\n");
+                     scanf("%lf",&b);
+                     printf("Dame la tolerancia en y\n");
+                     scanf("%lf",&ty);
+
+                     do{    
+                        c=(q+b)/2;
                        
-                        
-                          do{ 
-                              x+=gx;
-                                           //printf("x=%lf\n",x);  
-                                           polySum=0.0;
-                                           polyD=0.0; 
+                        polySum1 = functionEvaluate(N,a,q);
+                        polySum2 = functionEvaluate(N,a,c);
 
-                                 for (i=0;i<= N;i++)
-                                 {
-                               polySum = polySum + a[i]*pow(x,i);
-                                 //printf("%lf\n",polySum);
-                                 }
+                         if (polySum1 == polySum2){
+                           break;
+                        }
 
-                              
-                                for(i=0;i<=N;i++)
-                                                   {
-                                                   polyD=(a[i]*pow((x+e),i)-a[i]*pow((x-e),i))/(2*e)    ;            
-                                                   //printf("%lf\n",polyD);
-                                                   }
-                                                  
-                                                   
-                                           gx=-1*(polySum/polyD);
-                                           //printf("gx=%lf\n",gx);
-                                           
-                                                     
-                                           }while(fabs(polySum)>e );
-                                          
-                                           printf("Tu valor de x es: %lf\n",x);
-                                           printf("Tu valor de y es: %lf\n",polySum);
-                                          
-                        break;
-                        system("PAUSE");
-                           system("cls");
-                           
-                           
-                        case 2:
-                             printf("Dame el intervalo [a,b]\n");
-                             printf("Dame a:\n");
-                             scanf("%lf",&q);
-                             printf("Dame b:\n");
-                             scanf("%lf",&b);
-                             printf("Dame la tolerancia en y\n");
-                             scanf("%lf",&ty);
-                             do{            
-                                              c=(q+b)/2;
-                                             polySum1=0.0;
-                                             polySum2=0.0;
-                                             for (i=0;i<= N;i++)
-                                             {
-                                              polySum1 = polySum1 + a[i]*pow(q,i);
-                                              //printf("1=%lf\n",polySum1);
-                                              }
-                                              for (i=0;i<= N;i++)
-                                             {
-                                              polySum2 = polySum2 + a[i]*pow(c,i);
-                                              //printf("2=%lf\n",polySum);
-                                              }
-                                            
-                                            
-                                         if(polySum1>0){
-                                                     if(polySum2>0){
-                                                                q=c;       
-                                                                }
-                                                     else{b=c;
-                                                         }       
-                                                      }
-                                          else{
-                                               if(polySum2>0){
-                                                          b=c;
-                                                          }
-                                               else{
-                                                    q=c;
-                                                    }            
-                                                    }
-                                                    }while (fabs(polySum2)>=ty );
-                                                    printf("La raiz en x es:%f\n",c);
-                                              
-                        break;
-                        system("PAUSE");
-                           system("cls");
+                        if((polySum1 > 0 && polySum2 > 0) ||(polySum1 < 0 && polySum2 < 0) ){
+                           q = c;}
+                        else {
+                           b = c;}
+
+
+                        printf("q: %lf\nb: %lf\n",q,b);
+                        printf("polySum1: %lf\npolySum2: %lf\n",polySum1,polySum2);
+
+                        }while (fabs(polySum2)>=ty );
+                        if (fabs(polySum2)>ty){
+                           printf("No roots found in given range\n");
+                        }else{
+                        printf("La raiz en x es:%f\n",c);                    
+                        }
+                     break;
                              
-                             case 3:
-                                  it=0.0;
-                                  printf("Numero de interacciones?\n");
-                        scanf("%d",&Inx);
-                        printf("Entre que intervalo?\n");
-                        printf("a:  ");scanf("%lf",&q); 
-                        printf("b:  ");scanf("%lf",&b);
-
-                       
-
-                        h=(b-q)/Inx;
-                        
-                                                
-                                              
-                        for(j=0;j<Inx;j++)
-                        {polySum1=0.0;
-                                           polySum2=0.0;
-                                           polySum3=0.0; 
-                                           
-                                            for (i=0;i<= N;i++)
-                                             {
-                                              polySum1 = polySum1 + a[i]*pow(q,i);
-                                              //printf("1=%lf\n",polySum1);
-                                              }
+               case 3:
+                     it=0.0;
+                     printf("Numero de interacciones?\n");
+                     scanf("%d",&Inx);
+                     printf("Entre que intervalo?\n");
+                     printf("a:  ");scanf("%lf",&q); 
+                     printf("b:  ");scanf("%lf",&b);
+                     h=(b-q)/Inx;
+                     for(j=0;j<Inx;j++){
+                        polySum1=0.0;
+                        polySum2=0.0;
+                        polySum3=0.0; 
+                        for (i=0;i<= N;i++){
+                              polySum1 = polySum1 + a[i]*pow(q,i);}
                                               
                                               for (qw=0;qw<= N;qw++)
                                              {
@@ -189,75 +188,23 @@ int main(int argc, char *argv[])
                         printf("%lf\n",it);  
                                            
                         break;
-                        system("PAUSE");
-                           system("cls");
                         
                         case 4:
-                             polyD=0.0;
+                             polyDerivative=0.0;
                              printf("Ingresa el valor de x\n");
-                         scanf("%lf", &x);
+                         scanf("%lf", &xInitial);
    
                           printf("Ingresa el valor del error\n");
-                           scanf("%lf",&e);
-                                for(i=0;i<=N;i++)
-                                                   {
-                                                   polyD+=(a[i]*pow((x+e),i)-a[i]*pow((x-e),i))/(2*e)    ;            
-                                                   //printf("%lf\n",polyD);
-                                                   }     
-                                                  printf("El valor de la derivada evaluada es: %lf \n",polyD);             
+                           scanf("%lf",&error);
+
+                           printf("Ingresa el orden de la derivada\n");
+                           scanf("%lf",&it);
+
+                           polyDerivative = Derivative(N,a,error,xInitial,it);
+                           printf("El valor de la derivada evaluada es: %lf \n",polyDerivative);             
                         break;
-                        system("PAUSE");
-                           system("cls");
-                           case 5:
-                             polyD=0.0; 
-                             printf("Ingresa el valor de x\n");
-                         scanf("%lf", &x); 
-                        printf("Ingresa el error\n");
-                           scanf("%lf",&e);
-                                for(i=0;i<=N;i++)
-                                                   {
-                                                   polyD+=(a[i]*pow((x+e),i)-2*a[i]*pow((x),i)+a[i]*pow((x-e),i))/(pow(e,2.0))    ;            
-                                                   //printf("%lf\n",polyD);
-                                                   }
-                                                    printf("El valor de la derivada evaluada es: %lf \n",polyD);                    
-                        break;
-                        system("PAUSE");
-                           system("cls");
-                           case 6:
-                 polyD=0.0;
-                 printf("Ingresa el valor de x\n");
-                         scanf("%lf", &x);
-                             printf("Ingresa el valor del error\n");
-                           scanf("%lf",&e);
-                                for(i=0;i<=N;i++)
-                                                   {
-                                                   polyD+=(a[i]*pow((x+2*e),i)-2*a[i]*pow((x+e),i)+2*a[i]*pow((x-e),i)-a[i]*pow((x-2*e),i));
-                                                   polyD=polyD/(2*pow(e,3.0));                
-                                                   //printf("%lf\n",polyD);
-                                                   }
-                                                    printf("El valor de la derivada evaluada es: %lf \n",polyD); 
-                                                    break;
-                        system("PAUSE");
-                           system("cls");
-                                                   
-                          case 7:
-                                 polyD=0.0;
-                                 printf("Ingresa el valor de  x\n");
-                         scanf("%lf", &x);
-                             printf("Ingresa el valor del error\n");
-                           scanf("%lf",&e);
-                                for(i=0;i<=N;i++)
-                                                   {
-                                                   polyD+=(a[i]*pow((x+2*e),i)-4*a[i]*pow((x+e),i)+6*a[i]*pow((x),i)-4*a[i]*pow((x-e),i)+a[i]*pow((x-2*e),i))/(pow(e,4.0))    ;            
-                                                   //printf("%lf\n",polyD);
-                                                   }                            
-                         printf("El valor de la derivada evaluada es: %lf \n",polyD); 
-                          break;
-                        system("PAUSE");
-                           system("cls");
                         
-}}while(o != 8);
+}}while(option != 5);
  
-   system("PAUSE");	
   return 0;
 }
